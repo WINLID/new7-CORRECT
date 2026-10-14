@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatrice Scientifica - Windows 3.1</title>
+    <style>
+        body {
+            background-color: #008080; /* Verde Teal tipico di Windows 3.1 */
+            font-family: "MS Sans Serif", Arial, sans-serif;
+            font-size: 13px;
+            margin: 30px;
+            color: #000000;
+        }
+        .finestra-win31 {
+            background-color: #c0c0c0;
+            border-top: 2px solid #ffffff;
+            border-left: 2px solid #ffffff;
+            border-right: 2px solid #000000;
+            border-bottom: 2px solid #000000;
+            width: 420px;
+            padding: 4px;
+            box-shadow: 2px 2px 0px #000000;
+        }
+        .barra-titolo {
+            background-color: #000080;
+            color: white;
+            padding: 4px 8px;
+            font-weight: bold;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        .contenuto-calc {
+            padding: 10px;
+        }
+        .schermo-box {
+            background-color: #ffffff;
+            border-top: 2px solid #808080;
+            border-left: 2px solid #808080;
+            border-right: 2px solid #ffffff;
+            border-bottom: 2px solid #ffffff;
+            padding: 6px;
+            margin-bottom: 15px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 22px;
+            font-weight: bold;
+            height: 30px;
+            overflow: hidden;
+        }
+        .tabella-pulsanti {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 5px;
+        }
+        .btn-win31 {
+            width: 100%;
+            height: 35px;
+            background-color: #c0c0c0;
+            font-family: "MS Sans Serif", Arial, sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+            color: #000000;
+            border-top: 2px solid #ffffff;
+            border-left: 2px solid #ffffff;
+            border-right: 2px solid #808080;
+            border-bottom: 2px solid #808080;
+            cursor: pointer;
+            outline: none;
+        }
+        .btn-win31:active {
+            border-top: 2px solid #808080;
+            border-left: 2px solid #808080;
+            border-right: 2px solid #ffffff;
+            border-bottom: 2px solid #ffffff;
+            padding-top: 2px;
+            padding-left: 2px;
+        }
+        .btn-rosso { color: #800000; }
+        .btn-blu { color: #000080; }
+        .info-barra {
+            font-size: 11px;
+            color: #404040;
+            margin-top: 8px;
+            text-align: center;
+            border-top: 1px solid #808080;
+            padding-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="finestra-win31">
+    <div class="barra-titolo">Calcolatrice Scientifica v3.1</div>
+    
+    <div class="contenuto-calc">
+        <div class="schermo-box" id="display">0</div>
+        
+        <table class="tabella-pulsanti">
+            <tr>
+                <td><button class="btn-win31 btn-rosso" id="btnC">C</button></td>
+                <td><button class="btn-win31 btn-rosso" id="btnBack">←</button></td>
+                <td><button class="btn-win31 btn-blu" id="btnPi">π</button></td>
+                <td><button class="btn-win31 btn-blu" id="btnSqrt">√</button></td>
+                <td><button class="btn-win31 btn-blu" id="btnPow">^2</button></td>
+            </tr>
+            <tr>
+                <td><button class="btn-win31 btn-blu" id="btnSin">sin</button></td>
+                <td><button class="btn-win31" id="btn7">7</button></td>
+                <td><button class="btn-win31" id="btn8">8</button></td>
+                <td><button class="btn-win31" id="btn9">9</button></td>
+                <td><button class="btn-win31 btn-rosso" id="btnDiv">/</button></td>
+            </tr>
+            <tr>
+                <td><button class="btn-win31 btn-blu" id="btnCos">cos</button></td>
+                <td><button class="btn-win31" id="btn4">4</button></td>
+                <td><button class="btn-win31" id="btn5">5</button></td>
+                <td><button class="btn-win31" id="btn6">6</button></td>
+                <td><button class="btn-win31 btn-rosso" id="btnMul">*</button></td>
+            </tr>
+            <tr>
+                <td><button class="btn-win31 btn-blu" id="btnTan">tan</button></td>
+                <td><button class="btn-win31" id="btn1">1</button></td>
+                <td><button class="btn-win31" id="btn2">2</button></td>
+                <td><button class="btn-win31" id="btn3">3</button></td>
+                <td><button class="btn-win31 btn-rosso" id="btnSub">-</button></td>
+            </tr>
+            <tr>
+                <td><button class="btn-win31 btn-blu" id="btnLog">log</button></td>
+                <td><button class="btn-win31" id="btn0">0</button></td>
+                <td><button class="btn-win31" id="btnPunto">.</button></td>
+                <td><button class="btn-win31 btn-rosso" id="btnUguale">=</button></td>
+                <td><button class="btn-win31 btn-rosso" id="btnAdd">+</button></td>
+            </tr>
+        </table>
+        
+        <div class="info-barra">Ottimizzata al 100% per Windows 7 / IE11</div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // Variabili di stato vecchio stile ES5 completamente slegate da cicli
+    var valoreVisualizzato = "0";
+    var primoNumero = null;
+    var operatoreSelezionato = null;
+    var azzeraAlProssimoNumero = false;
+    
+    var display = document.getElementById("display");
+
+    function aggiornaDisplay() {
+        if (valoreVisualizzato.length > 16) {
+            display.innerHTML = valoreVisualizzato.substring(0, 16);
+        } else {
+            display.innerHTML = valoreVisualizzato;
+        }
+    }
+
+    function premiNumero(num) {
+        if (valoreVisualizzato === "0" || azzeraAlProssimoNumero) {
+            valoreVisualizzato = num;
+            azzeraAlProssimoNumero = false;
+        } else {
+            valoreVisualizzato += num;
+        }
+        aggiornaDisplay();
+    }
+
+    function premiPunto() {
+        if (azzeraAlProssimoNumero) {
+            valoreVisualizzato = "0.";
+            azzeraAlProssimoNumero = false;
+            aggiornaDisplay();
+            return;
+        }
+        if (valoreVisualizzato.indexOf(".") === -1) {
+            valoreVisualizzato += ".";
+            aggiornaDisplay();
+        }
+    }
+
+    function impostaOperatore(op) {
+        primoNumero = parseFloat(valoreVisualizzato);
+        operatoreSelezionato = op;
+        azzeraAlProssimoNumero = true;
+    }
+
+    // Collegamento statico e sicuro degli eventi dei numeri
+    document.getElementById("btn0").addEventListener("click", function() { premiNumero("0"); });
+    document.getElementById("btn1").addEventListener("click", function() { premiNumero("1"); });
+    document.getElementById("btn2").addEventListener("click", function() { premiNumero("2"); });
+    document.getElementById("btn3").addEventListener("click", function() { premiNumero("3"); });
+    document.getElementById("btn4").addEventListener("click", function() { premiNumero("4"); });
+    document.getElementById("btn5").addEventListener("click", function() { premiNumero("5"); });
+    document.getElementById("btn6").addEventListener("click", function() { premiNumero("6"); });
+    document.getElementById("btn7").addEventListener("click", function() { premiNumero("7"); });
+    document.getElementById("btn8").addEventListener("click", function() { premiNumero("8"); });
+    document.getElementById("btn9").addEventListener("click", function() { premiNumero("9"); });
+    document.getElementById("btnPunto").addEventListener("click", premiPunto);
+
+    // Collegamento operatori matematici standard
+    document.getElementById("btnAdd").addEventListener("click", function() { impostaOperatore("+"); });
+    document.getElementById("btnSub").addEventListener("click", function() { impostaOperatore("-"); });
+    document.getElementById("btnMul").addEventListener("click", function() { impostaOperatore("*"); });
+    document.getElementById("btnDiv").addEventListener("click", function() { impostaOperatore("/"); });
+
+    // Funzione di calcolo finale pulita (Senza usare eval)
+    document.getElementById("btnUguale").addEventListener("click", function() {
+        if (primoNumero === null || operatoreSelezionato === null) return;
+        
+        var secondoNumero = parseFloat(valoreVisualizzato);
+        var risultato = 0;
+
+        switch (operatoreSelezionato) {
+            case "+": risultato = primoNumero + secondoNumero; break;
+            case "-": risultato = primoNumero - secondoNumero; break;
+            case "*": risultato = primoNumero * secondoNumero; break;
+            case "/": 
+                if (secondoNumero === 0) {
+                    valoreVisualizzato = "Errore div per 0";
+                    aggiornaDisplay();
+                    primoNumero = null;
+                    operatoreSelezionato = null;
+                    return;
+                }
+                risultato = primoNumero / secondoNumero; 
+                break;
+        }
+
+        valoreVisualizzato = risultato.toString();
+        aggiornaDisplay();
+        primoNumero = null;
+        operatoreSelezionato = null;
+        azzeraAlProssimoNumero = true;
+    });
+
+    // Funzioni scientifiche istantanee ad azione singola
+    document.getElementById("btnPi").addEventListener("click", function() {
+        valoreVisualizzato = "3.14159265";
+        aggiornaDisplay();
+    });
+
+    document.getElementById("btnSqrt").addEventListener("click", function() {
+        var n = parseFloat(valoreVisualizzato);
+        if (n < 0) { valoreVisualizzato = "Errore"; } 
+Usa il codice con cautela.
+else { valoreVisualizzato = Math.sqrt(n).toString(); }
+aggiornaDisplay();
+azzeraAlProssimoNumero = true;
+});
+document.getElementById("btnPow").addEventListener("click", function() {
+var n = parseFloat(valoreVisualizzato);
+valoreVisualizzato = Math.pow(n, 2).toString();
+aggiornaDisplay();
+azzeraAlProssimoNumero = true;
+});
+document.getElementById("btnSin").addEventListener("click", function() {
+var n = parseFloat(valoreVisualizzato);
+valoreVisualizzato = Math.sin(n * Math.PI / 180).toFixed(6).toString();
+aggiornaDisplay();
+azzeraAlProssimoNumero = true;
+});
+document.getElementById("btnCos").addEventListener("click", function() {
+var n = parseFloat(valoreVisualizzato);
+valoreVisualizzato = Math.cos(n * Math.PI / 180).toFixed(6).toString();
+aggiornaDisplay();
+azzeraAlProssimoNumero = true;
+});
+document.getElementById("btnTan").addEventListener("click", function() {
+var n = parseFloat(valoreVisualizzato);
+valoreVisualizzato = Math.tan(n * Math.PI / 180).toFixed(6).toString();
+aggiornaDisplay();
+azzeraAlProssimoNumero = true;
+});
+document.getElementById("btnLog").addEventListener("click", function() {
+var n = parseFloat(valoreVisualizzato);
+if (n <= 0) { valoreVisualizzato = "Errore"; }
+else { valoreVisualizzato = Math.log(n).toFixed(6).toString(); }
+aggiornaDisplay();
+azzeraAlProssimoNumero = true;
+});
+// Tasto di reset completo (C)
+document.getElementById("btnC").addEventListener("click", function() {
+valoreVisualizzato = "0";
+primoNumero = null;
+operatoreSelezionato = null;
+azzeraAlProssimoNumero = false;
+aggiornaDisplay();
+});
+// Tasto cancella carattere (Back)
+document.getElementById("btnBack").addEventListener("click", function() {
+if (valoreVisualizzato.length > 1) {
+valoreVisualizzato = valoreVisualizzato.substring(0, valoreVisualizzato.length - 1);
+} else {
+valoreVisualizzato = "0";
+}
+aggiornaDisplay();
+});
+
+<FollowUp>
